@@ -119,6 +119,7 @@ public with sharing class OrgMonitoringExtractObsoleteUsers {
             orgmonitor.Type__c = 'Users';
             orgmonitor.Name__c = 'Obsolete Logins';
             orgmonitor.Units__c = 'Unit';
+            orgmonitor.Status__c = 'Active';
             orgmonitor.Latest__c = true;
 
             JSONObsoleteUsersQuery obsoleteUsers = (JSONObsoleteUsersQuery)JSON.deserialize(feedResponseUser.getBody(), JSONObsoleteUsersQuery.class);
