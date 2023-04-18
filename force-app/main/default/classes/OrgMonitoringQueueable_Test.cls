@@ -21,18 +21,19 @@ public with sharing class OrgMonitoringQueueable_Test {
          OrgToMonitor__mdt mdt = new OrgToMonitor__mdt();
          mdt.DeveloperName                = 'TEST-' +i ;
          mdt.Org_Id__c                    = '00Dxxxxxxxxxxx' +i;
-         mdt.Org_Name__c                  = 'TEST ORG';
+         mdt.Org_Name__c                  = 'TEST-ORG';
          mdt.OrgCreatedDate__c            =  System.today();
          mdt.Country__c                   = 'France';
          mdt.Business_Unit__c             = 'B2B';
          mdt.ObsoleteUserDelay__c         = 2;
          mdt.DisplayObsoleteLoginUsers__c = true;
-         mdt.apiVersion__c                = '54';
+         mdt.apiVersion__c                = '56';
          lorgs.add(mdt);
         }      
-        
-        System.enqueueJob(new OrgMonitoringQueueable(lorgs));
+        OrgMonitoring__c om = new OrgMonitoring__c (Latest__c = true, Name__c = 'Error', ObsoleteLoginUserList__c = 'Error Message');
+        insert om;
 
+        System.enqueueJob(new OrgMonitoringQueueable(lorgs));
         Test.stopTest();
 
     }

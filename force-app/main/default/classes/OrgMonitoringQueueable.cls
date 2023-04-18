@@ -48,31 +48,31 @@ public with sharing class OrgMonitoringQueueable implements Queueable, Database.
                 System.enqueueJob(esync);
             }
             processTargets(lorgmonitoring);
-            
-            // Are there errors during the extract? (If any they are stored in the OrgMonitor object under these conditions)
-            // orgmonitor.Name__c = 'Error';
-            // orgmonitor.ObsoleteLoginUserList__c = errorMsg;
-            
-            // Prepare the errors message if any.
-            String msgError = ' ';
-            List<OrgMonitoring__c> lorgerrors = new List<OrgMonitoring__c>([SELECT Id, OrgName__c, ObsoleteLoginUserList__c from OrgMonitoring__c where Latest__c = true and Name__c = 'Error']);
-            for ( OrgMonitoring__c errors : lorgerrors ) {
-                msgError = msgError + '\n\nOrg Name = ' + errors.OrgName__c + '   ' + + errors.ObsoleteLoginUserList__c;
-            }
-            if (msgError != ' ')
-            {
-                OrgMonitoringSendMailOnError.sendEmail(msgError);
-            }
-            // Delete obsolete errors.
-            try { 
-              delete lorgerrors;
-            } catch ( Exception e ) {
-              System.debug('#### Exception during delete of obsolete errors: ' + e);
-            }
         }
         catch(Exception ex)
         {
             system.debug('Exception in execute method:'+ex.getMessage());
+        }
+        
+        // Are there errors during the extract? (If any they are stored in the OrgMonitor object under these conditions)
+        // orgmonitor.Name__c = 'Error';
+        // orgmonitor.ObsoleteLoginUserList__c = errorMsg;
+        
+        // Prepare the errors message if any.
+        String msgError = ' ';
+        List<OrgMonitoring__c> lorgerrors = new List<OrgMonitoring__c>([SELECT Id, OrgName__c, ObsoleteLoginUserList__c from OrgMonitoring__c where Latest__c = true and Name__c = 'Error']);
+        for ( OrgMonitoring__c errors : lorgerrors ) {
+            msgError = msgError + '\n\nOrg Name = ' + errors.OrgName__c + '   ' + + errors.ObsoleteLoginUserList__c;
+        }
+        if (msgError != ' ')
+        {
+            OrgMonitoringSendMailOnError.sendEmail(msgError);
+        }
+        // Delete obsolete errors.
+        try { 
+          delete lorgerrors;
+        } catch ( Exception e ) {
+          System.debug('#### Exception during delete of obsolete errors: ' + e);
         }
     }
         public void processTargets(List<OrgMonitoring__c> orgmonitors){
