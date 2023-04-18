@@ -105,7 +105,6 @@ public with sharing class OrgMonitoringExtractLicenses
         ======================================================================= */
 
       List<OrgMonitoring__c> lListLicenses = new List<OrgMonitoring__c>();
-      String LicenseNamewithUnderscore = '';
       String sEndPoint = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+Status,+MasterLabel,+TotalLicenses,+UsedLicenses+FROM+UserLicense+where+Status+=+\'Active\'';
             
       // Get Connexion and Run the EndPoint
@@ -148,14 +147,8 @@ public with sharing class OrgMonitoringExtractLicenses
             orgmonitor.Status__c = license.records[i].Status;
             orgmonitor.Units__c = 'UserLicense';
             orgmonitor.Latest__c = true;
-            // Replace spaces with _ for each value of licence
-            // system.debug( 'Licence Name : ' +orgmonitor.Name__c);
-            LicenseNamewithUnderscore = orgmonitor.Name__c.replace (' ', '_');
-            LicenseNamewithUnderscore = LicenseNamewithUnderscore.replace ('-', 'x');
-            if(LicenseNamewithUnderscore.length() > 40 ){
-               LicenseNamewithUnderscore = LicenseNamewithUnderscore.substring(0,40);
-            }
-            LicenseList__mdt tln = LicenseList__mdt.getInstance(LicenseNamewithUnderscore );
+            String LicenseDeveloperName = getLicenseDeveloperName(orgmonitor.Name__c);
+            LicenseList__mdt tln = LicenseList__mdt.getInstance(LicenseDeveloperName );
             if (tln != null) {
                  orgmonitor.TranslatedLicenseName__c = tln.TranslatedLicenseName__c;
                  orgmonitor.LicenseCategory__c = tln.LicenseCategory__c;
@@ -184,7 +177,6 @@ public with sharing class OrgMonitoringExtractLicenses
         
         system.debug( '#### Processing Licenses from Permission Set Licenses ####');
         List<OrgMonitoring__c> lListLicensesPset = new List<OrgMonitoring__c>();
-        String LicenseNamewithUnderscore = '';
         String sEndPoint = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+Status,+MasterLabel,+TotalLicenses,+UsedLicenses+FROM+PermissionSetLicense+where+Status+=+\'Active\'';
         
         // Get Connexion and Run the EndPoint
@@ -227,13 +219,8 @@ public with sharing class OrgMonitoringExtractLicenses
               orgmonitor.Status__c = license.records[i].Status;
               orgmonitor.Units__c = 'PsetLicense';
               orgmonitor.Latest__c = true;
-              // Replace spaces with _ for each value of licence
-              LicenseNamewithUnderscore = orgmonitor.Name__c.replace (' ', '_');
-              LicenseNamewithUnderscore = LicenseNamewithUnderscore.replace ('-', 'x');
-              if(LicenseNamewithUnderscore.length() > 40 ){
-               LicenseNamewithUnderscore = LicenseNamewithUnderscore.substring(0,40);
-              }
-              LicenseList__mdt tln = LicenseList__mdt.getInstance(LicenseNamewithUnderscore);
+              String LicenseDeveloperName = getLicenseDeveloperName(orgmonitor.Name__c);
+              LicenseList__mdt tln = LicenseList__mdt.getInstance(LicenseDeveloperName);
               if (tln != null) {
                  orgmonitor.TranslatedLicenseName__c = tln.TranslatedLicenseName__c;
                  orgmonitor.LicenseCategory__c = tln.LicenseCategory__c;
@@ -247,78 +234,22 @@ public with sharing class OrgMonitoringExtractLicenses
         return lListLicensesPset;
     }
     
-       /* =======================================================================
-                        GET LICENSES USAGE FROM PACKAGE LICENSE OBJECT
-           =======================================================================
-        */
-        
-       
-    /* public static List<OrgMonitoring__c> processLicensesfromPackage (OrgToMonitor__mdt org, String defaultCategory)
-    {
-        
-       system.debug( '#### Processing Licenses from Package License ####');
-        List<OrgMonitoring__c> lListLicensesPackage = new List<OrgMonitoring__c>();
-        String LicenseNamewithUnderscore = '';
-        String sEndPoint = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+NamespacePrefix,+AllowedLicenses,+UsedLicenses,+Status+FROM+PackageLicense+where+Status+=+\'Active\'';
-        //+and+AllowedLicenses+!=+-1
-        // Get Connexion and Run the EndPoint
-        HttpRequest feedRequestLicense = new HttpRequest();
-        feedRequestLicense.setEndpoint(sEndPoint);
-        feedRequestLicense.setMethod('GET');
-        Http http = new Http();
-        HTTPResponse feedResponseLicense = new HTTPResponse();
-        if (  Test.isRunningTest() ) {
-         feedResponseLicense.setStatusCode( 200 );
-         feedResponseLicense.setBody ('{"totalSize":26,"done":true,"records":[ {"attributes":{"type":"PackageLicense","url" : "/services/data/v53.0/sobjects/PackageLicense/050090000019dsEAAQ"},"NamespacePrefix":"FSL","AllowedLicenses": -1,"UsedLicenses":0,"Status":"Active"},{"attributes":{"type":"PackageLicense","url":"/services/data/v53.0/sobjects/PackageLicense/050090000019dsXAAQ"},"NamespacePrefix":"einsteinplay","AllowedLicenses":-1,"UsedLicenses":0,"Status":"Active"} ]}');
-        } else { feedResponseLicense = http.send(feedRequestLicense);}
-      
-        while (feedResponseLicense.getStatusCode() == 302) {
-            feedRequestLicense.setEndpoint(feedResponseLicense.getHeader('Location'));
-            feedResponseLicense = new Http().send(feedRequestLicense);
-        }
-        
-        if ( feedResponseLicense.getStatusCode() == 200 )
-        {
-           LicensePackageCollection license = (LicensePackageCollection)JSON.deserialize(feedResponseLicense.getBody(), LicensePackageCollection.class); 
-           
-           for (integer i=0 ; i < license.records.size() ; i++) {
-              // system.debug( 'lListLicensesPackage: ' +license.records[i].NamespacePrefix);
-              OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
-              orgmonitor.OrgID__c = org.Org_Id__c;
-              orgmonitor.OrgName__c = org.Label;
-              orgmonitor.OrgDomainName__c = org.Org_Name__c;
-              orgmonitor.Country__c = org.Country__c;
-              orgmonitor.BusinessUnit__c = org.Business_Unit__c;
-              orgmonitor.Timestamp__c = datetime.now();
-              orgmonitor.TimestampText__c = String.valueOf( datetime.now().format('yy-MM-dd HH:mm') );
-              orgmonitor.Type__c = 'License';
-              orgmonitor.Name__c = license.records[i].NamespacePrefix;
-              orgmonitor.LicenseCategory__c = defaultCategory;
-              orgmonitor.TranslatedLicenseName__c = license.records[i].NamespacePrefix;
-              orgmonitor.Total__c = license.records[i].AllowedLicenses;
-              orgmonitor.Used__c = license.records[i].UsedLicenses;
-              orgmonitor.Remaining__c = license.records[i].AllowedLicenses - license.records[i].UsedLicenses;
-              orgmonitor.Status__c = license.records[i].Status;
-              orgmonitor.Units__c = 'PackageLicense';
-              orgmonitor.Latest__c = true;
-              // Replace spaces with _ for each value of licence
-              LicenseNamewithUnderscore = orgmonitor.Name__c.replace (' ', '_');
-              LicenseNamewithUnderscore = LicenseNamewithUnderscore.replace ('-', 'x');
-              if(LicenseNamewithUnderscore.length() > 40 ){
-               LicenseNamewithUnderscore = LicenseNamewithUnderscore.substring(0,40);
-              }
-              LicenseList__mdt tln = LicenseList__mdt.getInstance(LicenseNamewithUnderscore);
-              if (tln != null) {
-                 orgmonitor.TranslatedLicenseName__c = tln.TranslatedLicenseName__c;
-                 orgmonitor.LicenseCategory__c = tln.LicenseCategory__c;
-              }
-              lListLicensesPackage.add(orgmonitor);
-           }
-        } else {
-            System.debug ('#### Error reaching endpoint for Package Licenses ==> ' +sEndPoint);
-            System.debug ('#### Error code ==> ' +feedResponseLicense.getStatusCode());
-           } 
-        return lListLicensesPackage;
+   public static String getLicenseDeveloperName (String LicenseName)
+   {
+   // Transform LicenseName into a DeveloperName in order to fetch the value in MDT
+    
+   // Remplace tous les caractères non alphanumériques par des tirets bas
+      String LicenseDeveloperName = LicenseName.replaceAll('[^a-zA-Z0-9]+', '_');
+   // Si le nom de LicenseDeveloperName commence par un chiffre, ajoute un préfixe de caractère "X_"
+      Matcher m = Pattern.compile('^[0-9]').matcher(LicenseDeveloperName); 
+      if (m.find()) {
+         LicenseDeveloperName = 'X' + LicenseDeveloperName;
+      }
+   // Tronque le nom de développeur à 40 caractères maximum
+      LicenseDeveloperName = LicenseDeveloperName.substring(0, Math.min(LicenseDeveloperName.length(), 40));
+      system.debug ('LicenseName : ' + LicenseName + '  LicenseDeveloperName: ' + LicenseDeveloperName);
+   
+      return LicenseDeveloperName;
+   }
 
-    } */
 }

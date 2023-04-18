@@ -55,13 +55,19 @@ public with sharing class OrgMonitoringQueueable implements Queueable, Database.
             
             // Prepare the errors message if any.
             String msgError = ' ';
-            List<OrgMonitoring__c> lorgerrors = new List<OrgMonitoring__c>([SELECT OrgName__c, ObsoleteLoginUserList__c from OrgMonitoring__c where Latest__c = true and Name__c = 'Error']);
+            List<OrgMonitoring__c> lorgerrors = new List<OrgMonitoring__c>([SELECT Id, OrgName__c, ObsoleteLoginUserList__c from OrgMonitoring__c where Latest__c = true and Name__c = 'Error']);
             for ( OrgMonitoring__c errors : lorgerrors ) {
                 msgError = msgError + '\n\nOrg Name = ' + errors.OrgName__c + '   ' + + errors.ObsoleteLoginUserList__c;
             }
             if (msgError != ' ')
             {
                 OrgMonitoringSendMailOnError.sendEmail(msgError);
+            }
+            // Delete obsolete errors.
+            try { 
+              delete lorgerrors;
+            } catch ( Exception e ) {
+              System.debug('#### Exception during delete of obsolete errors: ' + e);
             }
         }
         catch(Exception ex)
