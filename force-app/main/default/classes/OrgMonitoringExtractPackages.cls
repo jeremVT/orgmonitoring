@@ -22,6 +22,30 @@ public with sharing class OrgMonitoringExtractPackages
         public SubscriberPackage SubscriberPackage {get;set;} 
     }
 
+    // Wrapper Class for Licenses Package 
+    public class LicensePackageCollection {
+      public Integer totalSize;
+      public Boolean done;
+      public List<LicensePackageRecords> records;
+    }
+    public class LicensePackageAttributes {
+      public String type;
+      public String url;
+    }
+
+    public class LicensePackageRecords {
+      public LicensePackageAttributes attributes;
+      public String NamespacePrefix;
+      public Integer AllowedLicenses;
+      public Integer UsedLicenses;
+      public String Status;
+    }
+
+    public static LicensePackageCollection parselicensepackage (String json) {
+       return (LicensePackageCollection) System.JSON.deserialize(json, LicensePackageCollection.class);
+    }
+    
+    
     public static List<OrgMonitoring__c> execute(OrgToMonitor__mdt org)
     {
         /* =======================================================================
@@ -87,7 +111,59 @@ public with sharing class OrgMonitoringExtractPackages
              lListPackages.add(orgmonitor);
              return lListPackages;
             } 
-            
+        /* =======================================================================
+                         GET INSTALLED PACKAGE WITH LICENSE
+           =======================================================================
+        */    
+        system.debug( '#### Processing Packages with licenses ####');
+        List<OrgMonitoring__c> lListLicensesPackage = new List<OrgMonitoring__c>();
+        sEndPoint = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+NamespacePrefix,+AllowedLicenses,+UsedLicenses,+Status+FROM+PackageLicense+where+Status+=+\'Active\'';
+
+        // Get Connexion and Run the EndPoint
+        HttpRequest RequestPLicense = new HttpRequest();
+        RequestPLicense.setEndpoint(sEndPoint);
+        RequestPLicense.setMethod('GET');
+        http = new Http();
+        HTTPResponse ResponsePLicense = new HTTPResponse();
+        if (  Test.isRunningTest() ) {
+            ResponsePLicense.setStatusCode( 200 );
+            ResponsePLicense.setBody ('{"totalSize":26,"done":true,"records":[ {"attributes":{"type":"PackageLicense","url" : "/services/data/v53.0/sobjects/PackageLicense/050090000019dsEAAQ"},"NamespacePrefix":"FSL","AllowedLicenses": -1,"UsedLicenses":0,"Status":"Active"},{"attributes":{"type":"PackageLicense","url":"/services/data/v53.0/sobjects/PackageLicense/050090000019dsXAAQ"},"NamespacePrefix":"einsteinplay","AllowedLicenses":-1,"UsedLicenses":0,"Status":"Active"} ]}');
+        } else { ResponsePLicense = http.send(RequestPLicense);}
+      
+        while (ResponsePLicense.getStatusCode() == 302) {
+            RequestPLicense.setEndpoint(ResponsePLicense.getHeader('Location'));
+            ResponsePLicense = new Http().send(RequestPLicense);
+        }
+        
+        if ( ResponsePLicense.getStatusCode() == 200 )
+        {
+           LicensePackageCollection license = (LicensePackageCollection)JSON.deserialize(ResponsePLicense.getBody(), LicensePackageCollection.class); 
+           
+           for (integer i=0 ; i < license.records.size() ; i++) {
+              system.debug( 'lListLicensesPackage: ' +license.records[i].NamespacePrefix);
+              OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
+
+              orgmonitor.OrgID__c = org.Org_Id__c;
+              orgmonitor.OrgName__c = org.Label;
+              orgmonitor.OrgDomainName__c = org.Org_Name__c;
+              orgmonitor.Country__c = org.Country__c;
+              orgmonitor.BusinessUnit__c = org.Business_Unit__c;
+              orgmonitor.Timestamp__c = datetime.now();
+              orgmonitor.TimestampText__c = String.valueOf( datetime.now().format('yy-MM-dd HH:mm') );
+              orgmonitor.Remaining__c = license.records[i].AllowedLicenses - license.records[i].UsedLicenses;
+              orgmonitor.Used__c = license.records[i].UsedLicenses; 
+              orgmonitor.Total__c = license.records[i].AllowedLicenses;
+              orgmonitor.Type__c = 'Package';
+              orgmonitor.Name__c = license.records[i].NamespacePrefix;
+              orgmonitor.Status__c = 'Active';
+              orgmonitor.Units__c = 'Unit';
+              orgmonitor.Latest__c = true; 
+              lListPackages.add(orgmonitor);
+           }
+        } else {
+            System.debug ('#### Error reaching endpoint for Package Licenses ==> ' +sEndPoint);
+            System.debug ('#### Error code ==> ' +ResponsePLicense.getStatusCode());
+           } 
         return lListPackages;
     }
 }
