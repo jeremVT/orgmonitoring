@@ -15,6 +15,7 @@ public with sharing class OrgMonitoringExtractPackages
     }
 
     public class SubscriberPackage {
+        public String NamespacePrefix {get;set;} 
         public String Name {get;set;} 
     }
 
@@ -78,7 +79,6 @@ public with sharing class OrgMonitoringExtractPackages
             DataToolingAPI dta = (DataToolingAPI)JSON.deserialize(feedResponsePackage.getBody(), DataToolingAPI.class);
             for (integer i=0 ; i < dta.records.size() ; i++)
             {
-                String sPackageName = dta.records[i].SubscriberPackage.Name;
                 OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
                 orgmonitor.OrgID__c = org.Org_Id__c;
                 orgmonitor.OrgName__c = org.Label;
@@ -91,9 +91,9 @@ public with sharing class OrgMonitoringExtractPackages
                 orgmonitor.Used__c = 0; 
                 orgmonitor.Total__c = 0;
                 orgmonitor.Type__c = 'Package';
-                orgmonitor.Name__c = sPackageName;
+                orgmonitor.Name__c = dta.records[i].SubscriberPackage.Name;
                 orgmonitor.Status__c = 'Active';
-                orgmonitor.Units__c = 'Unit';
+                orgmonitor.Units__c = dta.records[i].SubscriberPackage.NamespacePrefix;
                 orgmonitor.Latest__c = true; 
                 lListPackages.add(orgmonitor);
             }          
@@ -139,8 +139,11 @@ public with sharing class OrgMonitoringExtractPackages
         {
            LicensePackageCollection license = (LicensePackageCollection)JSON.deserialize(ResponsePLicense.getBody(), LicensePackageCollection.class); 
            
+           // Remove Package Name from lListPackages list if it exists in Package License 
+           removefromlist(lListPackages,license);
+
            for (integer i=0 ; i < license.records.size() ; i++) {
-              system.debug( 'lListLicensesPackage: ' +license.records[i].NamespacePrefix);
+              // system.debug( 'lListLicensesPackage: ' +license.records[i].NamespacePrefix);
               OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
 
               orgmonitor.OrgID__c = org.Org_Id__c;
@@ -156,7 +159,7 @@ public with sharing class OrgMonitoringExtractPackages
               orgmonitor.Type__c = 'Package';
               orgmonitor.Name__c = license.records[i].NamespacePrefix;
               orgmonitor.Status__c = 'Active';
-              orgmonitor.Units__c = 'Unit';
+              orgmonitor.Units__c = 'PackageLicense';
               orgmonitor.Latest__c = true; 
               lListPackages.add(orgmonitor);
            }
@@ -166,4 +169,22 @@ public with sharing class OrgMonitoringExtractPackages
            } 
         return lListPackages;
     }
+    
+    // This method remove a package record from package extracted list if it exists in the package license list
+    Public static void removefromlist (List<OrgMonitoring__c> lListPackages, LicensePackageCollection license )
+    {
+        for (integer i=0 ; i < license.records.size() ; i++)
+        {
+            for (integer j=0; j<lListPackages.size(); j++) 
+            {
+                if (lListPackages[j].Units__c == license.records[i].NamespacePrefix)
+                {
+                   // Get the name of the package (not the NamespacePrefix)
+                   license.records[i].NamespacePrefix = lListPackages[j].Name__c;
+                   lListPackages.remove(j);
+                   break;
+                }
+            }
+        }
+    }    
 }
