@@ -247,7 +247,7 @@ public with sharing class OrgMonitoringExtractLicenses
       }
    // Tronque le nom de développeur à 40 caractères maximum
       LicenseDeveloperName = LicenseDeveloperName.substring(0, Math.min(LicenseDeveloperName.length(), 40));
-      system.debug ('LicenseName : ' + LicenseName + '  LicenseDeveloperName: ' + LicenseDeveloperName);
+      // system.debug ('LicenseName : ' + LicenseName + '  LicenseDeveloperName: ' + LicenseDeveloperName);
    
       return LicenseDeveloperName;
    }
