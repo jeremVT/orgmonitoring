@@ -100,7 +100,9 @@ public with sharing class OrgMonitoringExtractPackages
         }   else {
              String errorMsg = '#### Error code ' + feedResponsePackage.getStatusCode() + ' --> Error reaching endpoint for Package ==> ' + sEndPoint;
              System.debug(errorMsg);
-            
+             if(feedResponsePackage.getStatusCode() == 400) {
+                errorMsg = ' --> Missing Download AppExchange Packages permission for the user';
+            }
              // Prepare for error Message: The error msg is in the field ObsoleteLoginUserList__c
              OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
              
@@ -115,6 +117,7 @@ public with sharing class OrgMonitoringExtractPackages
                          GET INSTALLED PACKAGE WITH LICENSE
            =======================================================================
         */    
+
         system.debug( '#### Processing Packages with licenses ####');
         List<OrgMonitoring__c> lListLicensesPackage = new List<OrgMonitoring__c>();
         sEndPoint = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+NamespacePrefix,+AllowedLicenses,+UsedLicenses,+Status+FROM+PackageLicense+where+Status+=+\'Active\'';
@@ -143,9 +146,7 @@ public with sharing class OrgMonitoringExtractPackages
            removefromlist(lListPackages,license);
 
            for (integer i=0 ; i < license.records.size() ; i++) {
-              // system.debug( 'lListLicensesPackage: ' +license.records[i].NamespacePrefix);
               OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
-
               orgmonitor.OrgID__c = org.Org_Id__c;
               orgmonitor.OrgName__c = org.Label;
               orgmonitor.OrgDomainName__c = org.Org_Name__c;
@@ -164,9 +165,19 @@ public with sharing class OrgMonitoringExtractPackages
               lListPackages.add(orgmonitor);
            }
         } else {
-            System.debug ('#### Error reaching endpoint for Package Licenses ==> ' +sEndPoint);
-            System.debug ('#### Error code ==> ' +ResponsePLicense.getStatusCode());
-           } 
+            String errorMsg = '#### Error code ' + ResponsePLicense.getStatusCode() + ' --> Error reaching endpoint for Package Licenses ==> ' + sEndPoint;
+            System.debug(errorMsg);
+            if(ResponsePLicense.getStatusCode() == 400) {
+                errorMsg = ' --> Missing Manage Package Licenses permission for the user';
+            }
+            // Prepare for error Message: The error msg is in the field ObsoleteLoginUserList__c
+            OrgMonitoring__c orgmonitor = new OrgMonitoring__c();
+            orgmonitor.OrgName__c = org.DeveloperName;
+            orgmonitor.Name__c = 'Error';
+            orgmonitor.Latest__c = true;
+            orgmonitor.ObsoleteLoginUserList__c = errorMsg;
+            lListPackages.add(orgmonitor);
+        } 
         return lListPackages;
     }
     
