@@ -10,8 +10,8 @@ History
 public with sharing class OrgMonitoringExtractLimits {
     // Wrapper Class form Limits
     public class LimitCollection {
-        public Integer Max;
-        public Integer Remaining;
+        public Decimal Max;
+        public Decimal Remaining;
     }
     
     public static List<OrgMonitoring__c> execute(OrgToMonitor__mdt org)
@@ -23,7 +23,7 @@ public with sharing class OrgMonitoringExtractLimits {
         system.debug( '#### Processing Limits ####');
         List<OrgMonitoring__c> lListLimits = new List<OrgMonitoring__c>();
         List<String> lLimits = new list<String>();
-        Integer iDataStorage = 0;
+        Decimal iDataStorage = 0;
 
         lLimits.add('ConcurrentAsyncGetReportInstances');
         lLimits.add('ConcurrentSyncReportRuns');
@@ -50,7 +50,7 @@ public with sharing class OrgMonitoringExtractLimits {
         HTTPResponse feedResponseLimits = new HTTPResponse();
         if (  Test.isRunningTest() ) {
             feedResponseLimits.setStatusCode( 200 );
-            feedResponseLimits.setBody ('{"ConcurrentAsyncGetReportInstances":{"Max":200,"Remaining":200},"ConcurrentSyncReportRuns":{"Max":20,"Remaining":20},"DailyApiRequests":{"Max":15000,"Remaining":14772  },"DailyAsyncApexExecutions":{"Max":250000,"Remaining":250000},"DailyBulkApiBatches":{"Max":15000,"Remaining":15000},"Ant Migration Tool":{"Max":0,"Remaining":0},"DailyWorkflowEmails":{"Max":1890,"Remaining":1890},"DataStorageMB":{"Max":5,"Remaining":4},"FileStorageMB":{"Max":20,"Remaining":20},"HourlyAsyncReportRuns":{"Max":1200,"Remaining":1200},"HourlyDashboardRefreshes":{"Max":200,"Remaining":200},"HourlyDashboardResults":{"Max":5000,"Remaining":5000},"HourlyDashboardStatuses":{"Max":999999999,"Remaining":999999999},"MassEmail":{"Max":10,"Remaining":10},"SingleEmail":{"Max":15,"Remaining":15}}' );
+            feedResponseLimits.setBody ('{"ConcurrentAsyncGetReportInstances":{"Max":200,"Remaining":200},"ConcurrentSyncReportRuns":{"Max":20,"Remaining":20},"DailyApiRequests":{"Max":15000,"Remaining":14772  },"DailyAsyncApexExecutions":{"Max":250000,"Remaining":250000},"DailyBulkApiBatches":{"Max":15000,"Remaining":15000},"Ant Migration Tool":{"Max":0,"Remaining":0},"DailyWorkflowEmails":{"Max":1890,"Remaining":1890},"DataStorageMB":{"Max":123456789012,"Remaining":123456789012},"FileStorageMB":{"Max":20,"Remaining":20},"HourlyAsyncReportRuns":{"Max":1200,"Remaining":1200},"HourlyDashboardRefreshes":{"Max":200,"Remaining":200},"HourlyDashboardResults":{"Max":5000,"Remaining":5000},"HourlyDashboardStatuses":{"Max":3123456789,"Remaining":3123456780},"MassEmail":{"Max":10,"Remaining":10},"SingleEmail":{"Max":15,"Remaining":15}}' );
         } else { feedResponseLimits = http.send(feedRequestLimits);}
 
         while (feedResponseLimits.getStatusCode() == 302) {
@@ -86,8 +86,8 @@ public with sharing class OrgMonitoringExtractLimits {
                     lListLimits.add(orgmonitor);
 
                     if ( sLimit == 'DataStorageMB' ) {
-                      iDataStorage = (Integer) ( ( dcMap.get(sLimit).Max - dcMap.get(sLimit).Remaining) * 1024 );
-                      if ( dcMap.get(sLimit).Max == dcMap.get(sLimit).Remaining ) iDataStorage = (Integer) dcMap.get(sLimit).Max * 1024;
+                      iDataStorage = (Decimal) ( ( dcMap.get(sLimit).Max - dcMap.get(sLimit).Remaining) * 1024 );
+                      if ( dcMap.get(sLimit).Max == dcMap.get(sLimit).Remaining ) iDataStorage = (Decimal) dcMap.get(sLimit).Max * 1024;
                     }
                 }
         }   
