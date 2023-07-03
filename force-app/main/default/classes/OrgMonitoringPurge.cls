@@ -11,24 +11,12 @@ History
 global with sharing class OrgMonitoringPurge implements Schedulable, Database.Batchable<sObject> 
 
 {
-    Global String sOperator;
-    Global String sReference;
     Global String sQuery;
 
-    global OrgMonitoringPurge() { 
-        
-        Integer iNb_months=6; /* Number of Months to Purge */
-        sOperator = '<= ';
-        sReference = 'LAST_N_MONTHS:' + iNb_months;
-
-        if (  Test.isRunningTest() ) {
-             sOperator = '= ';
-             sReference = 'TODAY';
-        } 
-       
-        sQuery = 'SELECT id FROM OrgMonitoring__c where CreatedDate ';
-        sQuery = sQuery + sOperator + sReference;
-        
+    global OrgMonitoringPurge()
+    { 
+      Date sixMonthsAgo = System.today().addMonths(-6); // Keep last 6 months records for historical data
+      sQuery = 'SELECT id FROM OrgMonitoring__c where CreatedDate >= ' + sixMonthsAgo + ' AND CreatedDate <= ' + SYSTEM.TODAY();
     }
     
     global Database.QueryLocator start( Database.BatchableContext BC ) {
