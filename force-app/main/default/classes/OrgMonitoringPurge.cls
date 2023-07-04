@@ -23,7 +23,7 @@ global with sharing class OrgMonitoringPurge implements Schedulable, Database.Ba
              sOperator = '= ';
              sReference = 'TODAY';
         } else {
-             sOperator = '= ';
+             sOperator = '< ';
              sReference = 'LAST_N_MONTHS:' + iNb_months;
         }
        
