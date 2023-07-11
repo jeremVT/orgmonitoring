@@ -35,13 +35,8 @@ public with sharing class OrgMonitoringPurge_Test {
         System.assertEquals(0, ct.TimesTriggered);
 
         // Verify the next time the job will run
-        System.assertEquals('2023-12-31 00:00:00', 
-        String.valueOf(ct.NextFireTime));
+        System.assertEquals('2023-12-31 00:00:00',  String.valueOf(ct.NextFireTime));
         Test.stopTest();
 
     }
-public void execute (SchedulableContext context) {
-    // Implement the execute method of the Schedulable interface
-    // This method will be called by the test method
-    } 
 }
