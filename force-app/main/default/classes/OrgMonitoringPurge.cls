@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------------------
 Author:        Salvatore Aversano
 Company:       Salesforce.com
-Description:   Apex class used to purge 6 months old records from orgmonitor object
+Description:   Apex class used to purge 6 months old records from OrgMonitoring__c object
 Test Class:    OrgMoniotoringPurge_Test
 Version:       1.0
 History
@@ -20,8 +20,9 @@ global with sharing class OrgMonitoringPurge implements Schedulable, Database.Ba
         Integer iNb_months=6; /* Number of Months to Keep -- All previous records are deleted*/
 
         if (  Test.isRunningTest() ) {
-             sOperator = '= ';
-             sReference = 'TODAY';
+             sOperator = '<= ';
+             Date TODAY = Date.ToDay();
+             sReference = 'TODAY LIMIT 10';
         } else {
              sOperator = '< ';
              sReference = 'LAST_N_MONTHS:' + iNb_months;
