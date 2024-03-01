@@ -59,6 +59,24 @@ public with sharing class OrgMonitoringExtractLicenses
       public static LicensePackageCollection parselicensepackage (String json) {
       return (LicensePackageCollection) System.JSON.deserialize(json, LicensePackageCollection.class);
    }
+   // Wrapper Class for Organization object in order to get POD of each Organization
+   public class OrganizationCollection {
+      public Integer totalSize;
+      public Boolean done;
+      public List<OrganizationRecords> records;
+   }
+   public class OrganizationAttributes {
+       public String type;
+       public String url;
+   }
+   public class OrganizationRecords {
+      public OrganizationAttributes attributes;
+      public String InstanceName;
+   }
+   
+   public static OrganizationCollection parseorga (String json) {
+      return (OrganizationCollection) System.JSON.deserialize(json, OrganizationCollection.class);
+   }
 
    public static List<OrgMonitoring__c> execute (OrgToMonitor__mdt org)
    {
@@ -99,10 +117,33 @@ public with sharing class OrgMonitoringExtractLicenses
    public static List<OrgMonitoring__c> processLicenses (OrgToMonitor__mdt org, String defaultCategory)
    {
       system.debug( '#### Processing Licenses from User License ####');
+      String InstanceName =  ' ';
+      /* Get InstanceName for this ORG */ 
+      String sEndPoint_Pod = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+InstanceName+FROM+Organization+Limit+1';
+      HttpRequest feedRequestPod = new HttpRequest();
+      feedRequestPod.setEndpoint(sEndPoint_Pod);
+      feedRequestPod.setMethod('GET');
+      Http http_pod = new Http();
+      HTTPResponse feedResponsePod = new HTTPResponse();
+        if (  Test.isRunningTest() ) {
+         feedResponsePod.setStatusCode( 200 );
+         feedResponsePod.setBody ('{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Organization","url":"/services/data/v58.0/sobjects/Organization/1007Q000002DbsLQAS"},"InstanceName":"EU35"}]}');
+        } else { feedResponsePod = http_pod.send(feedRequestPod);}
+      
+        while (feedResponsePod.getStatusCode() == 302) {
+         feedRequestPod.setEndpoint(feedResponsePod.getHeader('Location'));
+         feedResponsePod = new Http().send(feedRequestPod);
+      }
+        
+      if ( feedResponsePod.getStatusCode() == 200 )
+      {
+         OrganizationCollection pods = (OrganizationCollection)JSON.deserialize(feedResponsePod.getBody(), OrganizationCollection.class); 
+         InstanceName = pods.records[0].InstanceName;
+      }
    
       /*   =======================================================================
                      GET LICENSES USAGE FROM USER LICENSES OBJECT
-        ======================================================================= */
+           ======================================================================= */
 
       List<OrgMonitoring__c> lListLicenses = new List<OrgMonitoring__c>();
       String sEndPoint = 'callout:' + org.DeveloperName + '/services/data/v' + org.Apiversion__c + '.0/query/?q=SELECT+Status,+MasterLabel,+TotalLicenses,+UsedLicenses+FROM+UserLicense+where+Status+=+\'Active\'';
@@ -157,6 +198,7 @@ public with sharing class OrgMonitoringExtractLicenses
             // When license name is Salesforce, then store the value of organization created date
             if (orgmonitor.Name__c == 'Salesforce') {
                orgmonitor.OrgCreatedDate__c = org.OrgCreatedDate__c;
+               orgmonitor.OrgInstance__c = InstanceName;
             }
             
             lListLicenses.add(orgmonitor);
@@ -166,7 +208,7 @@ public with sharing class OrgMonitoringExtractLicenses
           System.debug ('#### Error code ==> ' +feedResponseLicense.getStatusCode());
          } 
       return lListLicenses;
-    }
+   }
     
     public static List<OrgMonitoring__c> processLicensesfromPset (OrgToMonitor__mdt org, String defaultCategory)
     {

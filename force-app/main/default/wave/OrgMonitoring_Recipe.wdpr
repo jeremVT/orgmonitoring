@@ -1,0 +1,111 @@
+{
+  "version" : "57.0",
+  "nodes" : {
+    "LOAD_DATASET0" : {
+      "action" : "load",
+      "sources" : [ ],
+      "parameters" : {
+        "fields" : [ "Id", "OwnerId", "IsDeleted", "Name", "CreatedDate", "CreatedById", "LastModifiedDate", "LastModifiedById", "SystemModstamp", "MayEdit", "IsLocked", "ConnectionReceivedId", "ConnectionSentId", "BusinessUnit__c", "Country__c", "Latest__c", "LicenseCategory__c", "Name__c", "OrgCreatedDate__c", "OrgDomainName__c", "OrgID__c", "OrgName__c", "Remaining__c", "Status__c", "TimestampText__c", "Timestamp__c", "Total__c", "TranslatedLicenseName__c", "Type__c", "Units__c", "Used__c", "PercentUsed__c" ],
+        "dataset" : {
+          "type" : "connectedDataset",
+          "label" : "OrgMonitoring__c",
+          "connectionName" : "OrgMonitoring",
+          "sourceObjectName" : "OrgMonitoring__c"
+        },
+        "sampleDetails" : {
+          "type" : "TopN",
+          "sortBy" : [ ]
+        }
+      }
+    },
+    "OUTPUT0" : {
+      "action" : "save",
+      "sources" : [ "BUCKET0" ],
+      "parameters" : {
+        "fields" : [ ],
+        "dataset" : {
+          "type" : "analyticsDataset",
+          "label" : "OrgMonitoring DS",
+          "name" : "OrgMonitoring_DS",
+          "folderName" : "OrgMonitoring"
+        },
+        "measuresToCurrencies" : [ ]
+      }
+    },
+    "BUCKET0" : {
+      "action" : "bucket",
+      "sources" : [ "LOAD_DATASET0" ],
+      "schema" : {
+        "fields" : [ {
+          "name" : "Visibility",
+          "newProperties" : {
+            "typeProperties" : {
+              "type" : "TEXT",
+              "length" : 10
+            }
+          }
+        } ]
+      },
+      "parameters" : {
+        "fields" : [ {
+          "name" : "Visibility",
+          "label" : "Visibility",
+          "type" : "TEXT",
+          "bucketsSetup" : {
+            "isPassthroughEnabled" : true,
+            "sourceField" : {
+              "name" : "OwnerId",
+              "type" : "TEXT"
+            },
+            "buckets" : [ {
+              "value" : "All",
+              "sourceValues" : [ "00509000006s0UxAAI" ]
+            } ]
+          }
+        } ]
+      }
+    }
+  },
+  "ui" : {
+    "nodes" : {
+      "LOAD_DATASET0" : {
+        "label" : "OrgMonitoring__c",
+        "type" : "LOAD_DATASET",
+        "top" : 112,
+        "left" : 112,
+        "parameters" : {
+          "sampleSize" : 2000
+        }
+      },
+      "OUTPUT0" : {
+        "label" : "Orgmonitoring_DS",
+        "description" : "",
+        "type" : "OUTPUT",
+        "top" : 112,
+        "left" : 392
+      },
+      "TRANSFORM0" : {
+        "label" : "Add bucket field",
+        "description" : "Add a Bucket column containing fixed value All managing Administrator Visibility",
+        "type" : "TRANSFORM",
+        "top" : 112,
+        "left" : 252,
+        "graph" : {
+          "BUCKET0" : {
+            "label" : "Bucket"
+          }
+        },
+        "connectors" : [ ]
+      }
+    },
+    "connectors" : [ {
+      "source" : "TRANSFORM0",
+      "target" : "OUTPUT0"
+    }, {
+      "source" : "LOAD_DATASET0",
+      "target" : "TRANSFORM0"
+    } ],
+    "hiddenColumns" : [ ]
+  },
+  "runMode" : "full"
+}

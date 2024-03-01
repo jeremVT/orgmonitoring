@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>This type translate the coded name of Salesforce licence into one chosen by the customer</description>
+    <label>LicenseList</label>
+    <pluralLabel>LicenseList</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

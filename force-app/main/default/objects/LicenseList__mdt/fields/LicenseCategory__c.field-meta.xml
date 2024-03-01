@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LicenseCategory__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>LicenseCategory</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Core Licenses</fullName>
+                <default>false</default>
+                <label>Core Licenses</label>
+            </value>
+            <value>
+                <fullName>Experience Cloud</fullName>
+                <default>false</default>
+                <label>Experience Cloud</label>
+            </value>
+            <value>
+                <fullName>Features</fullName>
+                <default>false</default>
+                <label>Features</label>
+            </value>
+            <value>
+                <fullName>Key Licenses</fullName>
+                <default>false</default>
+                <label>Key Licenses</label>
+            </value>
+            <value>
+                <fullName>Marketing</fullName>
+                <default>false</default>
+                <label>Marketing</label>
+            </value>
+            <value>
+                <fullName>Analytics</fullName>
+                <default>false</default>
+                <label>Analytics</label>
+            </value>
+            <value>
+                <fullName>B2B Commerce</fullName>
+                <default>false</default>
+                <label>B2B Commerce</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>true</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Chatter</fullName>
+                <default>false</default>
+                <label>Chatter</label>
+            </value>
+            <value>
+                <fullName>Field Service</fullName>
+                <default>false</default>
+                <label>Field Service</label>
+            </value>
+            <value>
+                <fullName>Salesforce Maps</fullName>
+                <default>false</default>
+                <label>Salesforce Maps</label>
+            </value>
+            <value>
+                <fullName>myTrailhead</fullName>
+                <default>false</default>
+                <label>myTrailhead</label>
+            </value>
+            <value>
+                <fullName>Salesforce CPQ</fullName>
+                <default>false</default>
+                <label>Salesforce CPQ</label>
+            </value>
+            <value>
+                <fullName>Slack</fullName>
+                <default>false</default>
+                <label>Slack</label>
+            </value>
+            <value>
+                <fullName>Energy &amp; Utility Cloud</fullName>
+                <default>false</default>
+                <label>Energy &amp; Utility Cloud</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

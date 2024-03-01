@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>sdo2</label>
+    <protected>false</protected>
+    <values>
+        <field>Business_Unit__c</field>
+        <value xsi:type="xsd:string">B2B</value>
+    </values>
+    <values>
+        <field>Country__c</field>
+        <value xsi:type="xsd:string">Uruguay</value>
+    </values>
+    <values>
+        <field>DisplayObsoleteLoginUsers__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>ObsoleteUserDelay__c</field>
+        <value xsi:type="xsd:double">30.0</value>
+    </values>
+    <values>
+        <field>OrgCreatedDate__c</field>
+        <value xsi:type="xsd:date">2023-09-04</value>
+    </values>
+    <values>
+        <field>Org_Id__c</field>
+        <value xsi:type="xsd:string">00DHr000001rHa7</value>
+    </values>
+    <values>
+        <field>Org_Name__c</field>
+        <value xsi:type="xsd:string">saversano-230904-297-demo</value>
+    </values>
+    <values>
+        <field>apiVersion__c</field>
+        <value xsi:type="xsd:string">56</value>
+    </values>
+</CustomMetadata>
