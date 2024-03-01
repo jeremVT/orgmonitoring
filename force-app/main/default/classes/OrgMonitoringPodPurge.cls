@@ -5,7 +5,7 @@ Description:   Apex class used to purge 30 days old records from OrgMonitoringPo
 Test Class:    OrgMoniotoringPurge_Test
 Version:       1.0
 History
-28/02/2024     Salvatore Aversano    Create version
+01/03/2024     Salvatore Aversano    Create version
 ----------------------------------------------------------------------------------------*/
 
 global with sharing class OrgMonitoringPodPurge implements Schedulable, Database.Batchable<sObject> 
@@ -40,7 +40,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
     global void finish( Database.BatchableContext BC ) {}
    
     global void execute( SchedulableContext SC ) {  
-        Database.executeBatch( new OrgMonitoringPurge(), 2000 );
+        Database.executeBatch( new OrgMonitoringPodPurge(), 2000 );
     }
     
 }
