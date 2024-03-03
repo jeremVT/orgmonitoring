@@ -21,7 +21,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
         Date targetDate = Date.today().addDays(-iNb_days);
         // Convert Date to String in YYYY-MM-DD format
         String dateString = targetDate.year() + '-' + String.valueOf(targetDate.month()).leftPad(2, '0') + '-' + String.valueOf(targetDate.day()).leftPad(2, '0')+ 'T23:59:59Z';
-        sQuery = 'SELECT id FROM OrgMonitoringPod__c where CreatedDate = ';
+        sQuery = 'SELECT id FROM OrgMonitoringPod__c where CreatedDate <= ';
         sQuery = sQuery + dateString;
         
     }
