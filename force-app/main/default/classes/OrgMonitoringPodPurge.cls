@@ -18,7 +18,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
 
     global OrgMonitoringPodPurge() { 
         
-        iNb_days=0; /* Number of day to Keep -- All previous records are deleted*/
+        iNb_days=30; /* Number of day to Keep -- All previous records are deleted*/
         if (Test.isRunningTest())
         { 
             iNb_days=0;
