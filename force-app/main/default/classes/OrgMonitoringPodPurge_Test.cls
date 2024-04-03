@@ -14,9 +14,9 @@ public with sharing class OrgMonitoringPodPurge_Test {
 
     @isTest
     public static void OrgMonitoringPodPurge_Test() {
-
+        
         Test.startTest();
-        OrgMonitoringPod__c om = new OrgMonitoringPod__c (Pod__c = 'EU40');
+        OrgMonitoringPod__c om = new OrgMonitoringPod__c (Pod__c = 'TEST', MasterPod__c = true, Status__c = 'OK');
         insert om;
         Database.executeBatch( new OrgMonitoringPodPurge(), 2000 );
 
