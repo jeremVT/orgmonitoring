@@ -27,7 +27,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker_Test
     static void OrgMonitoringPodAvailabilityChecker_Test() {
         Test.startTest();
         // Schedule the job
-        String schedule = '0 0 0 15 3 ? 2024'; // Every day at midnight on March 15, 2022
+        String schedule = '0 0 0 15 3 ? 2029'; // Every day at midnight on March 15, 2029
         String jobId = System.schedule('Test Job', schedule, new OrgMonitoringPodAvailabilityChecker());
         Test.stopTest();
         
