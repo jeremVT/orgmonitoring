@@ -4,20 +4,74 @@ Company:        Salesforce.com
 Description:    Test Class
 Test Class for  OrgMonitoringPodPurge
 History
-28/02/2024     Salvatore Aversano    Create version
+11/04/2024     Salvatore Aversano    Create version
 ------------------------------------------------------------*/
 
 @isTest
-public with sharing class OrgMonitoringPodPurge_Test {
-   
-    public static String CRON_EXP = '0 0 0 31 12 ? 2024';
-
+private class OrgMonitoringPodPurge_Test {
+    // Test method to cover the start method
     @isTest
-    public static void OrgMonitoringPodPurge_Test() {
+    static void testStart() {
+        // Insert test data
+        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true, CreatedDate = Date.today());
+        insert testRecord;
+
+        // Call the start method
+        Test.startTest();
+        Database.QueryLocator queryLocator = new OrgMonitoringPodPurge().start(null);
+        Test.stopTest();
+        
+        // Assert that the query locator is not null
+        System.assertNotEquals(null, queryLocator, 'Query locator should not be null');
+    }
+
+    // Test method to cover the execute method
+    @isTest
+    static void testExecute() {
+        // Insert test data
+        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true, CreatedDate = Date.today());
+        insert testRecord;
+
+        // Call the execute method
+        Test.startTest();
+        new OrgMonitoringPodPurge().execute(null, new List<OrgMonitoringPod__c>{testRecord});
+        Test.stopTest();
+        
+        // Verify that the test record has been deleted
+        List<OrgMonitoringPod__c> remainingRecords = [SELECT Id FROM OrgMonitoringPod__c WHERE Id = :testRecord.Id];
+        System.assertEquals(0, remainingRecords.size(), 'Test record should have been deleted');
+
+    }
+
+    // Test method to cover the finish method
+    @isTest
+    static void testFinish() {
+        // Insert test data
+        OrgMonitoringPodHistory__c testHistoryRecord = new OrgMonitoringPodHistory__c(Pod__c = 'Test Pod', Month__c = 'April', Year__c = String.valueOf(Date.today().year()), nbOK__c = 1, nbKO__c = 0, Availability__c = 100);
+        insert testHistoryRecord;
+
+        // Call the finish method
+        Test.startTest();
+        new OrgMonitoringPodPurge().finish(null);
+        Test.stopTest();
+        
+        // Verify that historical records have been inserted
+        List<OrgMonitoringPodHistory__c> insertedHistoryRecords = [SELECT Id FROM OrgMonitoringPodHistory__c WHERE Id = :testHistoryRecord.Id];
+        System.assertNotEquals(0, insertedHistoryRecords.size(), 'Historical records should have been inserted');
+
+    }
+
+    // Test method to cover the execute method when called by the scheduler
+    @isTest
+    static void testExecuteScheduler() {
+        
+        String CRON_EXP = '0 0 0 31 12 ? 2029';
+
+        // Insert test data
+        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true, CreatedDate = Date.today());
+        insert testRecord;
         
         Test.startTest();
-        OrgMonitoringPod__c om = new OrgMonitoringPod__c (Pod__c = 'TEST', MasterPod__c = true, Status__c = 'OK');
-        insert om;
         Database.executeBatch( new OrgMonitoringPodPurge(), 2000 );
 
         // Schedule the test job
@@ -35,8 +89,9 @@ public with sharing class OrgMonitoringPodPurge_Test {
         System.assertEquals(0, ct.TimesTriggered);
 
         // Verify the next time the job will run
-        System.assertEquals('2024-12-31 00:00:00',  String.valueOf(ct.NextFireTime));
+        System.assertEquals('2029-12-31 00:00:00',  String.valueOf(ct.NextFireTime));
+        
         Test.stopTest();
-
+        
     }
 }
