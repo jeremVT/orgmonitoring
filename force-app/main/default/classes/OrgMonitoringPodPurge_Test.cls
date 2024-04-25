@@ -13,7 +13,7 @@ private class OrgMonitoringPodPurge_Test {
     @isTest
     static void testStart() {
         // Insert test data
-        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true, CreatedDate = Date.today());
+        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true);
         insert testRecord;
 
         // Call the start method
@@ -29,7 +29,7 @@ private class OrgMonitoringPodPurge_Test {
     @isTest
     static void testExecute() {
         // Insert test data
-        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true, CreatedDate = Date.today());
+        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true);
         insert testRecord;
 
         // Call the execute method
@@ -68,7 +68,7 @@ private class OrgMonitoringPodPurge_Test {
         String CRON_EXP = '0 0 0 31 12 ? 2029';
 
         // Insert test data
-        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true, CreatedDate = Date.today());
+        OrgMonitoringPod__c testRecord = new OrgMonitoringPod__c(Pod__c = 'Test Pod', Status__c = 'OK', Masterpod__c = true);
         insert testRecord;
         
         Test.startTest();

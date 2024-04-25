@@ -10,7 +10,7 @@ History
 @isTest
 public with sharing class OrgMonitoringPurge_Test {
    
-    public static String CRON_EXP = '0 0 0 31 12 ? 2023';
+    public static String CRON_EXP = '0 0 0 31 12 ? 2029';
 
     @isTest
     public static void OrgMonitoringPurge_Test() {
@@ -35,7 +35,7 @@ public with sharing class OrgMonitoringPurge_Test {
         System.assertEquals(0, ct.TimesTriggered);
 
         // Verify the next time the job will run
-        System.assertEquals('2023-12-31 00:00:00',  String.valueOf(ct.NextFireTime));
+        System.assertEquals('2029-12-31 00:00:00',  String.valueOf(ct.NextFireTime));
         Test.stopTest();
 
     }

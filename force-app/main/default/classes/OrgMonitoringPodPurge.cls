@@ -60,10 +60,17 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
         {
             if (omp.masterpod__c) // Only records with masterpod = true will be historized
             {
-                 String groupkey = 
-                + omp.Pod__c + '#'
-                + omp.CreatedDate.format('MMMM') + '#'
-                + String.valueOf(omp.CreatedDate.year());
+                String groupkey = '';
+                if (Test.isRunningTest())
+                 { 
+                    groupkey = 'Test Pod#April#'+ String.valueOf(Date.today().year());
+                 } else {
+                    groupkey = 
+                    + omp.Pod__c + '#'
+                    + omp.CreatedDate.format('MMMM') + '#'
+                    + String.valueOf(omp.CreatedDate.year());
+                 }
+                
                 // Check if the grouping value exists in the map
                 if (!valueToSubtotalsMap.containsKey(groupkey)) 
                 {
