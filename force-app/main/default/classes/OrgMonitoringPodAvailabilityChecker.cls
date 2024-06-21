@@ -90,7 +90,17 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         podStatus = (String)jsonResponse.get('status');
                         // Insert a new record into OrgMonitoringPod
                         orgPod.MasterPod__c = true;
-                        orgPod.Status__c = podstatus;
+                        System.debug('#### PodStatus : ' + podStatus);
+
+                        if          (podStatus ==  'OK')                     { orgPod.status__c = 'OK';
+                        } else if   (podStatus ==  'MAJOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
+                        } else if   (podStatus ==  'MINOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
+                        } else if   (podStatus ==  'MAINTENANCE_CORE')       { orgPod.status__c = 'KO';
+                        } else if   (podStatus ==  'MAJOR_INCIDENT_NONCORE') { orgPod.status__c = 'OK';
+                        } else if   (podStatus ==  'MINOR_INCIDENT_NONCORE') { orgPod.status__c = 'OK';
+                        } else if   (podStatus ==  'MAINTENANCE_NONCORE')    { orgPod.status__c = 'OK';
+                        } else                                               { orgPod.status__c = 'NA';}
+                       
                         podToInsert.add(orgPod);
                     } else 
                       {
