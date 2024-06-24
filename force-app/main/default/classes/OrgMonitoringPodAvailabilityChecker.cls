@@ -95,7 +95,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         if          (podStatus ==  'OK')                     { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MAJOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
                         } else if   (podStatus ==  'MINOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
-                        } else if   (podStatus ==  'MAINTENANCE_CORE')       { orgPod.status__c = 'KO';
+                        } else if   (podStatus ==  'MAINTENANCE_CORE')       { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MAJOR_INCIDENT_NONCORE') { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MINOR_INCIDENT_NONCORE') { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MAINTENANCE_NONCORE')    { orgPod.status__c = 'OK';
