@@ -3,7 +3,7 @@ Author:        Salvatore Aversano
 Company:       Salesforce.com
 Description:   Apex class used to purge records of the lowest month from OrgMonitoringPod__c object
 Test Class:    OrgMoniotoringPurge_Test
-Version:       1.0
+Version:       1.1
 History
 01/03/2024     Salvatore Aversano    Create version
 ----------------------------------------------------------------------------------------*/
@@ -67,7 +67,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
                  } else {
                     groupkey = 
                     + omp.Pod__c + '#'
-                    + omp.CreatedDate.format('MMMM') + '#'
+                    + omp.CreatedDate.formatGMT('MMMM') + '#'  //FormtGMT permit to gather the right month
                     + String.valueOf(omp.CreatedDate.year());
                  }
                 
@@ -106,7 +106,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
  
         if (scope != null) {
            try { 
-              delete scope;
+            delete scope;
             } catch ( Exception e ) {
                System.debug('#### Exception while deleting records : ' + e);
             }
@@ -118,7 +118,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
         {
             List<OrgMonitoringPodHistory__c> Allsummarized = summarizeAll(summarizeChunk);
             try {
-             insert Allsummarized;
+              insert Allsummarized;
             } catch (DMLException f){
               System.debug('#### DML Exception when inserting historical records: ' + f);
             }
@@ -167,6 +167,7 @@ global with sharing class OrgMonitoringPodPurge implements Schedulable, Database
                 histPod.nbOK__c         = subtotals.nbOK;
                 histPod.nbKO__c         = subtotals.nbKO;
                 histPod.Availability__c = (histPod.nbOK__c  / (histPod.nbOK__c + histPod.nbKO__c)) * 100;  
+                // System.debug ('HistPod = ' + histPod);
                 aggregateAll.add(histPod);
             }
         } 
