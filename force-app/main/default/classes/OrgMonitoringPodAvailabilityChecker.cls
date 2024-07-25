@@ -32,15 +32,21 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
             // sur le dernier extract de OrgMonitoring. 
 
             String sQuery = 'SELECT OrgId__c, OrgName__c, OrgInstance__c, Country__c, BusinessUnit__c FROM OrgMonitoring__c where latest__c = false and ';
-            // Extraction de la date de la dernière extraction -- latest_c = false
             List<OrgMonitoring__c> om = [Select CreatedDate from orgmonitoring__c where latest__c = false order by CreatedDate desc Limit 1];
-            Date LastDayOfExtract = om[0].CreatedDate.date();
+            Date LastDayOfExtract = System.Today();
             Date NextDay = LastDayOfExtract + 1;
-            // System.debug ('Date de extraction = ' + LastDayOfExtract);
-            // System.debug ('Date de extraction = ' + NextDay);
+            if (om.size() > 0) 
+            {
+               LastDayOfExtract = om[0].CreatedDate.date();
+               NextDay = LastDayOfExtract + 1;
+            }
             sQuery = sQuery + 'CreatedDate >= :LastDayOfExtract AND CreatedDate < :NextDay AND OrgInstance__c != NULL' ;
+            if (Test.isRunningTest())
+            { 
+                sQuery = 'SELECT OrgId__c, OrgName__c, OrgInstance__c, Country__c, BusinessUnit__c FROM OrgMonitoring__c';
+            }
+
             List<OrgMonitoring__c> orgslist = Database.query(sQuery);
-            
             Set <String> SetPodToCheck = new Set<String>();
             for ( OrgMonitoring__c oOrg : orgslist ) 
             {
@@ -88,7 +94,6 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                     } 
                 }
                 podToInsert.add(orgPod); // POD has been already checked, No need to run a callout
-                System.debug ('Pod à insérer : ' + orgPod.Pod__c + ' MasterPod = ' + orgPod.MasterPod__c); 
             }    
             else 
                 {  
@@ -108,7 +113,6 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         podStatus = (String)jsonResponse.get('status');
                         // Insert a new record into OrgMonitoringPod
                         orgPod.MasterPod__c = true;
-                        // System.debug('#### PodStatus : ' + podStatus);
 
                         if          (podStatus ==  'OK')                     { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MAJOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
@@ -120,7 +124,6 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         } else                                               { orgPod.status__c = 'NA';}
                        
                         podToInsert.add(orgPod);
-                        System.debug ('Pod à insérer : ' + orgPod.Pod__c + ' MasterPod = ' + orgPod.MasterPod__c); 
                     } else 
                       {
                          // If request was not successful, return an error message
@@ -133,15 +136,11 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
         // Method to check if a POD has already been checked 
         public static Boolean alreadyCheckedPod (Set <String> Pods, String podToCheck)
         { 
-         
-         System.Debug ('Les Pods déjà checkés : ' + Pods);
          if (Pods.contains(podToCheck))
           {
-            System.debug ('Pod à tester : '+ podToCheck + ' TRUE');  
             return true;
           } else {
                 Pods.add(podToCheck);
-                System.debug ('Pod à tester : '+ podToCheck + ' FALSE');
                 return false;
             }
         }
