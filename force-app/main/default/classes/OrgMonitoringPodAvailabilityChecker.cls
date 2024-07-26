@@ -91,6 +91,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         // Insert a new record into OrgMonitoringPod
                         orgPod.MasterPod__c = true;
                         System.debug('#### PodStatus : ' + podStatus);
+                        orgPod.ApiPodStatus__c = podStatus;
 
                         if          (podStatus ==  'OK')                     { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MAJOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
