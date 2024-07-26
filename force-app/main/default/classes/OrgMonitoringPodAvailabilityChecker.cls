@@ -22,31 +22,8 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
         public void execute(QueueableContext context) 
         {
             List<OrgMonitoringPod__c> podToInsert = new List<OrgMonitoringPod__c>();
+            List<OrgMonitoring__c> orgslist = [SELECT OrgId__c, OrgName__c, OrgInstance__c, Country__c, BusinessUnit__c FROM OrgMonitoring__c where latest__c = true and Type__c = 'License' and Units__c = 'UserLicense' and Name__c = 'Salesforce' order by OrgId__c];
 
-            // Creation de la liste des orgs et leur Pod à interroger. 
-            // Pour récupérer le pod d'une instance il faut aller le chercher dans l'objet Orgmonitoring__c
-            // or cet objet est mis à jour toute les semaines a une heure précise (il est schédulé en faite)
-            // ce qui pose probleme lorsque le programme de checks des pods s'exécute simultanément.
-
-            // Pour éviter tout chevauchement entre les deux extractions le pod d'une instance est récupéré 
-            // sur le dernier extract de OrgMonitoring. 
-
-            String sQuery = 'SELECT OrgId__c, OrgName__c, OrgInstance__c, Country__c, BusinessUnit__c FROM OrgMonitoring__c where latest__c = false and ';
-            List<OrgMonitoring__c> om = [Select CreatedDate from orgmonitoring__c where latest__c = false order by CreatedDate desc Limit 1];
-            Date LastDayOfExtract = System.Today();
-            Date NextDay = LastDayOfExtract + 1;
-            if (om.size() > 0) 
-            {
-               LastDayOfExtract = om[0].CreatedDate.date();
-               NextDay = LastDayOfExtract + 1;
-            }
-            sQuery = sQuery + 'CreatedDate >= :LastDayOfExtract AND CreatedDate < :NextDay AND OrgInstance__c != NULL' ;
-            if (Test.isRunningTest())
-            { 
-                sQuery = 'SELECT OrgId__c, OrgName__c, OrgInstance__c, Country__c, BusinessUnit__c FROM OrgMonitoring__c';
-            }
-
-            List<OrgMonitoring__c> orgslist = Database.query(sQuery);
             Set <String> SetPodToCheck = new Set<String>();
             for ( OrgMonitoring__c oOrg : orgslist ) 
             {
@@ -73,7 +50,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
             // Prepare a new record for OrgMonitoringPod
             OrgMonitoringPod__c orgPod = new OrgMonitoringPod__c();
             String podStatus = ' ';
-            orgPod.MasterPod__c = false;
+            orgPod.MasterPod__c = true;
             orgPod.OrgId__c = org.OrgId__c;
             orgPod.OrgName__c = org.OrgName__c;      
             orgPod.Country__c = org.Country__c;
@@ -113,6 +90,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         podStatus = (String)jsonResponse.get('status');
                         // Insert a new record into OrgMonitoringPod
                         orgPod.MasterPod__c = true;
+                        System.debug('#### PodStatus : ' + podStatus);
 
                         if          (podStatus ==  'OK')                     { orgPod.status__c = 'OK';
                         } else if   (podStatus ==  'MAJOR_INCIDENT_CORE')    { orgPod.status__c = 'KO';
@@ -135,7 +113,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
     
         // Method to check if a POD has already been checked 
         public static Boolean alreadyCheckedPod (Set <String> Pods, String podToCheck)
-        { 
+        {
          if (Pods.contains(podToCheck))
           {
             return true;
@@ -144,4 +122,4 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                 return false;
             }
         }
-}   
+}

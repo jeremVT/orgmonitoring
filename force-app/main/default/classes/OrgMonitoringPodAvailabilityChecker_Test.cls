@@ -27,7 +27,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker_Test
     static void OrgMonitoringPodAvailabilityChecker_Test() {
         Test.startTest();
         // Schedule the job
-        String schedule = '0 0 0 15 3 ? 2029'; // Every day at midnight on March 15, 2029
+        String schedule = '0 0 0 15 7 ? 2035'; // Every day at midnight on July 15, 2035
         String jobId = System.schedule('Test Job', schedule, new OrgMonitoringPodAvailabilityChecker());
         Test.stopTest();
         
@@ -46,7 +46,10 @@ public with sharing class OrgMonitoringPodAvailabilityChecker_Test
         om.OrgInstance__c = 'EU40';
         om.Country__c = 'France';
         om.BusinessUnit__c = 'B2B';
-        om.latest__c = false;
+        om.latest__c = true;
+        om.Type__c = 'License';
+        om.Units__c = 'UserLicense';
+        om.Name__c = 'Salesforce';
         insert om;
         // 2repare Data record 2
         OrgMonitoring__c om2 = new OrgMonitoring__c();
@@ -55,7 +58,10 @@ public with sharing class OrgMonitoringPodAvailabilityChecker_Test
         om2.OrgInstance__c = 'EU40';
         om2.Country__c = 'France';
         om2.BusinessUnit__c = 'B2B';
-        om2.latest__c = false;
+        om2.latest__c = true;
+        om2.Type__c = 'License';
+        om2.Units__c = 'UserLicense';
+        om2.Name__c = 'Salesforce';
         insert om2;
         // Prepare Data record 3
         OrgMonitoring__c om3 = new OrgMonitoring__c();
@@ -64,7 +70,10 @@ public with sharing class OrgMonitoringPodAvailabilityChecker_Test
         om3.OrgInstance__c = 'XYZ';
         om3.Country__c = 'France';
         om3.BusinessUnit__c = 'B2B';
-        om3.latest__c = false;
+        om3.latest__c = true;
+        om3.Type__c = 'License';
+        om3.Units__c = 'UserLicense';
+        om3.Name__c = 'Salesforce';
         insert om3;
        
         
