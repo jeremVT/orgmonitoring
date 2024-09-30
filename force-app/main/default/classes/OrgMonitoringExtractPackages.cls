@@ -49,9 +49,11 @@ public with sharing class OrgMonitoringExtractPackages
     
     public static List<OrgMonitoring__c> execute(OrgToMonitor__mdt org)
     {
-        /* =======================================================================
-                                 GET INSTALLED PACKAGE
-           =======================================================================
+        /* ==========================================================================
+                GET INSTALLED PACKAGE
+                This code require the "Download AppExchange Packages" permission 
+                which is a HUGE one because it allow automatically the Modify All also
+           ============================================================================
         */
         
         system.debug( '#### Processing Packages ####');
@@ -111,10 +113,12 @@ public with sharing class OrgMonitoringExtractPackages
              orgmonitor.Latest__c = true;
              orgmonitor.ObsoleteLoginUserList__c = errorMsg;
              lListPackages.add(orgmonitor);
-             return lListPackages;
+             // Comment the next line in order to continue the process
+             // return lListPackages;
             } 
         /* =======================================================================
                          GET INSTALLED PACKAGE WITH LICENSE
+                         This code require the "Manage Package Licenses" permission
            =======================================================================
         */    
 
