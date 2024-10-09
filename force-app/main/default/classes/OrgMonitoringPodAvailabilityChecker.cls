@@ -90,7 +90,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                         podStatus = (String)jsonResponse.get('status');
                         // Insert a new record into OrgMonitoringPod
                         orgPod.MasterPod__c = true;
-                        System.debug('#### PodStatus : ' + podStatus);
+                        // System.debug('#### PodStatus : ' + podStatus);
                         orgPod.ApiPodStatus__c = podStatus;
 
                         if          (podStatus ==  'OK')                     { orgPod.status__c = 'OK';
@@ -107,6 +107,7 @@ public with sharing class OrgMonitoringPodAvailabilityChecker implements Schedul
                       {
                          // If request was not successful, return an error message
                          orgPod.Status__c = 'NA';
+                         orgPod.ApiPodStatus__c = 'REST API ERROR';
                          podToInsert.add(orgPod);
                       } 
                 }
